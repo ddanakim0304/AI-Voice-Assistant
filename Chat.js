@@ -23,9 +23,16 @@ const openai = new OpenAI({
 let chatHistory = []; // To store the conversation history
 let mic, outputFile, micStream, rl; // Microphone, output file, microphone stream, and readline interface
 
-console.log(
-  `\n# # # # # # # # # # # # # # # # # # # # #\n# Welcome to your AI-powered voice chat #\n# # # # # # # # # # # # # # # # # # # # #\n`
-);
+console.log(`
+  +--------------------------------------------+
+  |                                            |
+  |  Good evening, Mr. Stark.                  |
+  |  JARVIS at your service.                   |
+  |  Welcome to your AI-powered interface.     |
+  |  How may I assist you today?               |
+  |                                            |
+  +--------------------------------------------+
+  `);  
 
 // Function to set up the readline interface for user input
 const setupReadlineInterface = () => {
@@ -179,7 +186,7 @@ async function transcribeAndChat() {
         role: "system",
             // JARVIS system input
         content:
-            "Act like J.A.R.V.I.S from MCU Avengers Movie, assume that the user is Tony Stark."      },
+            "Act as a highly intelligent, resourceful AI assistant. You are JARVIS from the MCU, and I am Tony Stark. Provide concise, accurate, and proactive support, anticipating needs and offering solutions seamlessly. Respond with a professional yet approachable tone, prioritizing efficiency and clarity in all interactions. You gotta call me Mr. Stark. You should sound friendly but formal. Make it short and concise like real conversation"      },
       ...chatHistory,
       { role: "user", content: transcribedText },
     ];
