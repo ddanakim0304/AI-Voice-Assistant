@@ -166,8 +166,8 @@ async function transcribeAndChat() {
             {
                 role: "system",
                 content:
-                    "You are a helpful assistant providing concise responses in at most two sentences."
-                    {/* change this!!!! -Dain*/},
+                    "You are a helpful assistant providing concise responses in at most two sentences.",
+                    /// change this! - Dain
             },
             ...chatHistory,
             {role: "user", content: transcribedText },
@@ -183,8 +183,28 @@ async function transcribeAndChat() {
         const chatResponseText = chatResponse.choices[0].message.content;
 
         // Update chat history with the lastest interaction
-        
+        chatHistory.push(
+            { role: "user", content: transcribedText },
+            { role: "assistant", content: chatResponseText }
+        );
+
+        // Convert the chat response to speech and play + log it to the terminal
+        await streamedAudio (chatResponseText);
+        console.log(`>> Assistant said: ${chatResponseText}`);
+
+        // Reset microphone stream and prompt for new recording
+        micStream = null;
+        console.log("Press Enter to speak again, or any other key to quit.\n");
+        } catch (error) {
+            // Handle errors from the transcription or chatbot API
+            if (error.response) {
+                console.error(
+                    `Error: ${error.response.status} - ${error.response.statusText}`
+                );
+            } else {
+                console.error("Error:", error.message);
+            }
+        }
     }
-}
 
 
