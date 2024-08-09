@@ -92,8 +92,8 @@ const stopRecordingAndProcess = () => {
 };
 
 // Default voice setting for text-to-speech
-const inputVoice = "echo"; // https://platform.openai.com/docs/guides/text-to-speech/voice-options
-const inputModel = "tts-1"; // https://platform.openai.com/docs/guides/text-to-speech/audio-quality
+const inputVoice = "echo";
+const inputModel = "tts-1";
 
 // Function to convert text to speech and play it using Speaker
 async function streamedAudio(
@@ -177,7 +177,7 @@ async function transcribeAndChat() {
     const messages = [
       {
         role: "system",
-            // JARVIS setting
+            // JARVIS system input
         content:
             "Act like J.A.R.V.I.S from MCU Avengers Movie, assume that the user is Tony Stark."      },
       ...chatHistory,
