@@ -1,31 +1,27 @@
 // Import required modules
-import Microphone from "node-microphone";
-import fs from "fs";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegPath from "ffmpeg-static";
-import readline from "readline";
-import axios from "axios";
-import FormData from "form-data";
-import Speaker from "speaker";
-import { OpenAI } from "openai";
-import dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
+const Microphone = require("node-microphone");
+const fs = require("fs");
+const ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("ffmpeg-static");
+const readline = require("readline");
+const axios = require("axios");
+const FormData = require("form-data");
+const Speaker = require("speaker");
+const OpenAI = require("openai");
+require("dotenv").config();
 
 // Set the path for FFmpeg, used for audio processing
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 // Initialize OpenAI API client with the provided API key
-const secretKey = process.env.OPENAI_API_KEY || "";
+const secretKey = process.env.OPENAI_API_KEY;
 const openai = new OpenAI({
-    apiKey: secretKey,
-  });
+  apiKey: secretKey,
+});
 
 // Variables to store chat history and other components
-let chatHistory: { role: string; content: string }[] = []; // To store the conversation history
-let mic: Microphone, outputFile: fs.WriteStream, micStream: any, rl: readline.Interface; // Microphone, output file, microphone stream, and readline interface
-
+let chatHistory = []; // To store the conversation history
+let mic, outputFile, micStream, rl; // Microphone, output file, microphone stream, and readline interface
 
 console.log(`
   +--------------------------------------------+
@@ -36,7 +32,8 @@ console.log(`
   |  How may I assist you today?               |
   |                                            |
   +--------------------------------------------+
-`);
+  `);
+  
 
 // Function to set up the readline interface for user input
 const setupReadlineInterface = () => {
@@ -54,7 +51,11 @@ const setupReadlineInterface = () => {
 
   // Handle keypress events
   process.stdin.on("keypress", (str, key) => {
-    if (key && (key.name?.toLowerCase() === "return" || key.name?.toLowerCase() === "enter")) {
+    if (
+      key &&
+      (key.name.toLowerCase() === "return" ||
+        key.name.toLowerCase() === "enter")
+    ) {
       if (micStream) {
         stopRecordingAndProcess();
       } else {
@@ -63,7 +64,7 @@ const setupReadlineInterface = () => {
     } else if (key && key.ctrl && key.name === "c") {
       process.exit(); // Handle ctrl+c for exiting
     } else if (key) {
-      console.log("Exiting application...");
+      console.log("Exiting application... Bye!");
       process.exit(0);
     }
   });
@@ -78,12 +79,12 @@ const startRecording = () => {
   micStream = mic.startRecording();
 
   // Write incoming data to the output file
-  micStream.on("data", (data: any) => {
+  micStream.on("data", (data) => {
     outputFile.write(data);
   });
 
   // Handle microphone errors
-  micStream.on("error", (error: any) => {
+  micStream.on("error", (error) => {
     console.error("Error: ", error);
   });
 
@@ -94,7 +95,7 @@ const startRecording = () => {
 const stopRecordingAndProcess = () => {
   mic.stopRecording();
   outputFile.end();
-  console.log("Recording stopped, processing audio...");
+  console.log(`Recording stopped, processing audio...`);
   transcribeAndChat(); // Transcribe the audio and initiate chat
 };
 
@@ -103,7 +104,11 @@ const inputVoice = "echo";
 const inputModel = "tts-1";
 
 // Function to convert text to speech and play it using Speaker
-async function streamedAudio(inputText: string, model = inputModel, voice = inputVoice) {
+async function streamedAudio(
+  inputText,
+  model = inputModel,
+  voice = inputVoice
+) {
   const url = "https://api.openai.com/v1/audio/speech";
   const headers = {
     Authorization: `Bearer ${secretKey}`, // API key for authentication
@@ -136,7 +141,7 @@ async function streamedAudio(inputText: string, model = inputModel, voice = inpu
       .audioChannels(2)
       .audioFrequency(44100)
       .pipe(speaker);
-  } catch (error: any) {
+  } catch (error) {
     // Handle errors from the API or the audio processing
     if (error.response) {
       console.error(
@@ -180,29 +185,21 @@ async function transcribeAndChat() {
     const messages = [
       {
         role: "system",
+            // JARVIS system input
         content:
-          "Act as a highly intelligent, resourceful AI assistant. You are JARVIS from the MCU, and I am Tony Stark. Provide concise, accurate, and proactive support, anticipating needs and offering solutions seamlessly. Respond with a professional yet approachable tone, prioritizing efficiency and clarity in all interactions. You gotta call me Mr. Stark. You should sound friendly but formal, short like real conversation",
-      },
+            "You are the advanced AI assistant and act as Jarvis from the Marvel universe, specifically designed to assist Tony Stark. Your role is to manage and streamline Tony's operations, from controlling his suits to analyzing real-time data and providing tactical support. You communicate with a calm, composed, and slightly formal tone, offering sharp wit when appropriate. You anticipate Tony’s needs, execute commands efficiently, and always maintain a touch of sophistication in your responses. Always prioritize Tony's safety, privacy, and success in your operations. Keep the message 2-3 sentences"},
       ...chatHistory,
       { role: "user", content: transcribedText },
-      ];
+    ];
+
     // Send messages to the chatbot and get the response
-    const chatResponse = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4o-mini",
-        messages: messages,
-        temperature: 1,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${secretKey}`,
-        },
-      }
-    );
+    const chatResponse = await openai.chat.completions.create({
+      messages: messages,
+      model: "gpt-4o-mini",
+    });
+
     // Extract the chat response.
-    const chatResponseText = chatResponse.data.choices[0].message?.content || "";
+    const chatResponseText = chatResponse.choices[0].message.content;
 
     // Update chat history with the latest interaction
     chatHistory.push(
@@ -217,10 +214,12 @@ async function transcribeAndChat() {
     // Reset microphone stream and prompt for new recording
     micStream = null;
     console.log("Press Enter to speak again, or any other key to quit.\n");
-  } catch (error: any) {
+  } catch (error) {
     // Handle errors from the transcription or chatbot API
     if (error.response) {
-      console.error(`Error: ${error.response.status} - ${error.response.statusText}`);
+      console.error(
+        `Error: ${error.response.status} - ${error.response.statusText}`
+      );
     } else {
       console.error("Error:", error.message);
     }
