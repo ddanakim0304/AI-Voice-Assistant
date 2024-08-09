@@ -63,7 +63,7 @@ console.log("Press 'Enter' to start chatting.");
 
 const startRecording = () => {
     mic = new Microphone();
-    outputFile = fs.createWritingStream("output.wav");
+    outputFile = fs.createWriteStream("output.wav");
     micStream = mic.startRecording();
 
     micStream.on("data", (data) => {
@@ -141,7 +141,7 @@ async function streamedAudio(
 async function transcribeAndChat() {
     const filePath = "output.wav";
     // Prepare form data for the transcription request
-    const form = new FromData();
+    const form = new FormData();
     form.append("file", fs.createReadStream(filePath));
     form.append("model", "whisper-1")
     form.append("response_format", "text");
