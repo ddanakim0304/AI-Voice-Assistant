@@ -99,7 +99,7 @@ async function streamedAudio(
         Authorization: `Bearer ${secretKey}`
     }
     const data = {
-        model = model,
+        model: model,
         input: inputText,
         voice: voice,
         response_format: "mp3",
@@ -157,7 +157,7 @@ async function transcribeAndChat() {
                     Authorization: `Bearer ${secretKey}`,
                 },
             }
-        ):
+        )
         const transcribedText = transcriptionResponse.data;
         console.log(`>> You said: ${transcribedText}`);
 
@@ -165,9 +165,9 @@ async function transcribeAndChat() {
         const messages = [
             {
                 role: "system",
+                // JARVIS setting
                 content:
-                    "You are a helpful assistant providing concise responses in at most two sentences.",
-                    /// change this! - Dain
+                    "Act like J.A.R.V.I.S from MCU Avengers Movie, assume that the user is Tony Stark."
             },
             ...chatHistory,
             {role: "user", content: transcribedText },
