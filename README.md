@@ -1,6 +1,6 @@
 ![main-qimg-a9a5ba3aaa3aa2dd2a39993fd6864e49-lq](https://github.com/user-attachments/assets/c9209b41-64ad-41ff-9be9-6a72f9ddb759)
 <img width="998" alt="Screenshot 2024-08-09 at 8 54 51 PM" src="https://github.com/user-attachments/assets/0f50755b-0a9e-48bb-bdba-b3a5d87c5699">
-# JARVIS AI Interface
+# JARVIS AI Voice Assistant
 
 A voice-controlled AI assistant inspired by JARVIS from Marvel, built using Node.js and OpenAI APIs.
 
